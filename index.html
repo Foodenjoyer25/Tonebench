@@ -261,22 +261,53 @@ const nameOct=m=>P(PREF[mod(m)])+(Math.floor(m/12)-1);
 const S=s=>s.trim().split(/\s+/);
 
 const SCALES=[
- {id:'major',name:'Major',alt:'Ionian',degs:'1 2 3 4 5 6 7'},
- {id:'natural_minor',name:'Natural minor',alt:'Aeolian',degs:'1 2 b3 4 5 b6 b7'},
- {id:'harmonic_minor',name:'Harmonic minor',degs:'1 2 b3 4 5 b6 7'},
- {id:'melodic_minor',name:'Melodic minor',alt:'jazz minor',degs:'1 2 b3 4 5 6 7'},
- {id:'dorian',name:'Dorian',degs:'1 2 b3 4 5 6 b7'},
- {id:'phrygian',name:'Phrygian',degs:'1 b2 b3 4 5 b6 b7'},
- {id:'lydian',name:'Lydian',degs:'1 2 3 #4 5 6 7'},
- {id:'mixolydian',name:'Mixolydian',degs:'1 2 3 4 5 6 b7'},
- {id:'locrian',name:'Locrian',degs:'1 b2 b3 4 b5 b6 b7'},
- {id:'major_pent',name:'Major pentatonic',degs:'1 2 3 5 6'},
- {id:'minor_pent',name:'Minor pentatonic',degs:'1 b3 4 5 b7'},
- {id:'blues',name:'Blues',degs:'1 b3 4 b5 5 b7'},
- {id:'phrygian_dom',name:'Phrygian dominant',degs:'1 b2 3 4 5 b6 b7'},
- {id:'whole_tone',name:'Whole tone',degs:'1 2 3 #4 #5 b7'},
- {id:'dim_hw',name:'Diminished (half–whole)',degs:'1 b2 b3 3 #4 5 6 b7'},
+ {id:'major',cat:'Major & minor',name:'Major',alt:'Ionian',degs:'1 2 3 4 5 6 7'},
+ {id:'natural_minor',cat:'Major & minor',name:'Natural minor',alt:'Aeolian',degs:'1 2 b3 4 5 b6 b7'},
+ {id:'harmonic_minor',cat:'Major & minor',name:'Harmonic minor',degs:'1 2 b3 4 5 b6 7'},
+ {id:'melodic_minor',cat:'Major & minor',name:'Melodic minor',alt:'jazz minor',degs:'1 2 b3 4 5 6 7'},
+ {id:'harmonic_major',cat:'Major & minor',name:'Harmonic major',degs:'1 2 3 4 5 b6 7',desc:'Major with a lowered 6th. Gives a minor iv chord inside a major key.'},
+ {id:'dorian',cat:'Modes',name:'Dorian',degs:'1 2 b3 4 5 6 b7'},
+ {id:'phrygian',cat:'Modes',name:'Phrygian',degs:'1 b2 b3 4 5 b6 b7'},
+ {id:'lydian',cat:'Modes',name:'Lydian',degs:'1 2 3 #4 5 6 7'},
+ {id:'mixolydian',cat:'Modes',name:'Mixolydian',degs:'1 2 3 4 5 6 b7'},
+ {id:'locrian',cat:'Modes',name:'Locrian',degs:'1 b2 b3 4 b5 b6 b7'},
+ {id:'major_pent',cat:'Pentatonic & blues',name:'Major pentatonic',degs:'1 2 3 5 6'},
+ {id:'minor_pent',cat:'Pentatonic & blues',name:'Minor pentatonic',degs:'1 b3 4 5 b7'},
+ {id:'blues',cat:'Pentatonic & blues',name:'Blues',degs:'1 b3 4 b5 5 b7'},
+ {id:'major_blues',cat:'Pentatonic & blues',name:'Major blues',degs:'1 2 b3 3 5 6',desc:'Major pentatonic plus a ♭3 passing note. A country and blues-rock staple.'},
+ {id:'egyptian',cat:'Pentatonic & blues',name:'Egyptian',alt:'suspended pentatonic',degs:'1 2 4 5 b7',desc:'A pentatonic with no 3rd, so it is neither major nor minor.'},
+ {id:'lydian_dom',cat:'Jazz',name:'Lydian dominant',alt:'acoustic, overtone',degs:'1 2 3 #4 5 6 b7',desc:'Mode 4 of melodic minor. Fits a 7♯11 chord; also close to the natural overtone series.'},
+ {id:'lydian_aug',cat:'Jazz',name:'Lydian augmented',degs:'1 2 3 #4 #5 6 7',desc:'Mode 3 of melodic minor. Fits a maj7♯5 chord.'},
+ {id:'altered',cat:'Jazz',name:'Altered',alt:'super Locrian',degs:'1 b2 b3 b4 b5 b6 b7',desc:'Mode 7 of melodic minor. Every tension a dominant chord can take: ♭9, ♯9, ♯11, ♭13.'},
+ {id:'locrian_n2',cat:'Jazz',name:'Locrian ♮2',alt:'half-diminished',degs:'1 2 b3 4 b5 b6 b7',desc:'Mode 6 of melodic minor. The usual choice over a m7♭5 chord.'},
+ {id:'aeolian_dom',cat:'Jazz',name:'Mixolydian ♭6',alt:'Aeolian dominant, Hindu',degs:'1 2 3 4 5 b6 b7',desc:'Mode 5 of melodic minor. Major on the bottom, minor on top.'},
+ {id:'bebop_dom',cat:'Jazz',name:'Bebop dominant',degs:'1 2 3 4 5 6 b7 7',desc:'Mixolydian with an added major 7th so chord tones land on the beat in eighth-note lines.'},
+ {id:'bebop_major',cat:'Jazz',name:'Bebop major',degs:'1 2 3 4 5 #5 6 7',desc:'Major with an added ♯5 passing tone.'},
+ {id:'phrygian_dom',cat:'Exotic & world',name:'Phrygian dominant',alt:'Spanish, Freygish',degs:'1 b2 3 4 5 b6 b7',desc:'Mode 5 of harmonic minor. The sound of flamenco, klezmer and much Middle Eastern music.'},
+ {id:'double_harmonic',cat:'Exotic & world',name:'Double harmonic major',alt:'Byzantine, Arabic',degs:'1 b2 3 4 5 b6 7',desc:'Two augmented seconds give it a strongly Middle Eastern color.'},
+ {id:'hungarian_minor',cat:'Exotic & world',name:'Hungarian minor',alt:'Gypsy minor',degs:'1 2 b3 #4 5 b6 7',desc:'Harmonic minor with a raised 4th. Dramatic and dark.'},
+ {id:'hungarian_major',cat:'Exotic & world',name:'Hungarian major',degs:'1 #2 3 #4 5 6 b7',desc:'A major-sounding scale with ♯2 and ♯4.'},
+ {id:'ukrainian_dorian',cat:'Exotic & world',name:'Ukrainian Dorian',alt:'Romanian minor',degs:'1 2 b3 #4 5 6 b7',desc:'Dorian with a raised 4th. Common in Eastern European folk and klezmer.'},
+ {id:'neapolitan_minor',cat:'Exotic & world',name:'Neapolitan minor',degs:'1 b2 b3 4 5 b6 7',desc:'Harmonic minor with a ♭2.'},
+ {id:'neapolitan_major',cat:'Exotic & world',name:'Neapolitan major',degs:'1 b2 b3 4 5 6 7',desc:'Melodic minor with a ♭2.'},
+ {id:'persian',cat:'Exotic & world',name:'Persian',degs:'1 b2 3 4 b5 b6 7',desc:'Double harmonic with a ♭5. Very tense and chromatic.'},
+ {id:'spanish_8',cat:'Exotic & world',name:'Spanish 8-tone',degs:'1 b2 b3 3 4 b5 b6 b7',desc:'Phrygian with an added major 3rd, so it works over major and minor flamenco chords.'},
+ {id:'enigmatic',cat:'Exotic & world',name:'Enigmatic',degs:'1 b2 3 #4 #5 #6 7',desc:'Heard in Verdi’s Ave Maria (1898); an unusual, unresolved sound.'},
+ {id:'prometheus',cat:'Exotic & world',name:'Prometheus',degs:'1 2 3 #4 6 b7',desc:'Scriabin’s six-note “mystic chord” scale.'},
+ {id:'hirajoshi',cat:'Exotic & world',name:'Hirajoshi',degs:'1 2 b3 5 b6',desc:'A Japanese pentatonic used for koto tuning.'},
+ {id:'in_sen',cat:'Exotic & world',name:'In-sen',degs:'1 b2 4 5 b7',desc:'A Japanese pentatonic with a dark ♭2, often heard on shakuhachi.'},
+ {id:'iwato',cat:'Exotic & world',name:'Iwato',degs:'1 b2 4 b5 b7',desc:'A Japanese pentatonic with ♭2 and ♭5. Very dark.'},
+ {id:'kumoi',cat:'Exotic & world',name:'Kumoi',degs:'1 2 b3 5 6',desc:'A Japanese pentatonic; minor pentatonic with a 2 and 6 instead of 4 and ♭7.'},
+ {id:'yo',cat:'Exotic & world',name:'Yo',degs:'1 2 4 5 6',desc:'A Japanese pentatonic used in folk songs; bright with no semitones.'},
+ {id:'pelog',cat:'Exotic & world',name:'Pelog (approx.)',degs:'1 b2 b3 5 b6',desc:'A 12-tone approximation of a Javanese gamelan tuning.'},
+ {id:'chinese',cat:'Exotic & world',name:'Chinese',degs:'1 3 #4 5 7',desc:'A bright pentatonic built on the Lydian sound.'},
+ {id:'whole_tone',cat:'Symmetric',name:'Whole tone',degs:'1 2 3 #4 #5 b7'},
+ {id:'dim_hw',cat:'Symmetric',name:'Diminished (half–whole)',degs:'1 b2 b3 3 #4 5 6 b7'},
+ {id:'dim_wh',cat:'Symmetric',name:'Diminished (whole–half)',degs:'1 2 b3 4 b5 b6 6 7',desc:'Alternating whole and half steps. Fits a diminished 7th chord.'},
+ {id:'augmented',cat:'Symmetric',name:'Augmented',degs:'1 #2 3 5 #5 7',desc:'Alternating minor 3rds and half steps; two augmented triads a half step apart.'},
 ].map(s=>({...s,degs:S(s.degs)}));
+const SCALE_CATS=[...new Set(SCALES.map(s=>s.cat))];
+const scaleSelect=sel=>SCALE_CATS.map(c=>`<optgroup label="${c}">${opts(SCALES.filter(s=>s.cat===c).map(s=>[s.id,s.name]),sel)}</optgroup>`).join('');
 const SC=Object.fromEntries(SCALES.map(s=>[s.id,s]));
 
 const CHORDS=[
@@ -436,7 +467,7 @@ const vMidis=(v,tuning)=>v.map((f,i)=>f>=0?tuning[i]+f:null).filter(x=>x!=null);
 
 /* ================= UI helpers ================= */
 const opts=(arr,sel)=>arr.map(o=>{const [v,l]=Array.isArray(o)?o:[o,o];return `<option value="${v}"${String(v)===String(sel)?' selected':''}>${l}</option>`;}).join('');
-const fld=(label,id,arr,sel)=>`<label class="fld" for="${id}"><span>${label}</span><select id="${id}">${opts(arr,sel)}</select></label>`;
+const fld=(label,id,arr,sel)=>`<label class="fld" for="${id}"><span>${label}</span><select id="${id}">${typeof arr==='string'?arr:opts(arr,sel)}</select></label>`;
 const rootOpts=ROOTS.map(r=>[r,P(r)]);
 const chordOpts=CHORDS.map(c=>[c.id,c.name+(c.sym?` (${P2(c.sym)})`:'')]);
 const scaleOpts=SCALES.map(s=>[s.id,s.name]);
@@ -732,22 +763,25 @@ view('chord-charts','Piano','Chord Charts','One chord type in all 12 keys at a g
 const FT={guitar:GT.slice(0,6).map(t=>[t[0].replace('Guitar · ',''),t[1]]).concat([['7-string (B E A D G B E)',[35,40,45,50,55,59,64]]]),
  ukulele:[['Standard (G C E A)',[67,60,64,69]],['Low G',[55,60,64,69]],['Baritone (D G B E)',[50,55,59,64]]],
  bass:[['4-string (E A D G)',[28,33,38,43]],['5-string (B E A D G)',[23,28,33,38,43]],['Drop D',[26,33,38,43]],['6-string (B E A D G C)',[23,28,33,38,43,48]]]};
+let PRESET=null;
 function fretView(el,{inst,show='notes',root='C',scale='major',chord='maj',positions=false,fretsDef=15}){
+ if(PRESET&&positions){root=PRESET.root;scale=PRESET.scale;PRESET=null;}
  const fretOpts=inst==='ukulele'?[12,15,18]:inst==='bass'?[12,20,24]:[12,15,22,24];
  el.insertAdjacentHTML('beforeend',`<div class="panel"><div class="controls">${fld('Tuning','fT',FT[inst].map((t,i)=>[i,t[0]]),0)}
  ${positions?'':fld('Show','fS',[['notes','All notes'],['naturals','Natural notes only'],['scale','A scale'],['chord','A chord']],show)}
- ${fld('Root','fR',rootOpts,root)}<span id="fScW">${fld('Scale','fSc',scaleOpts,scale)}</span><span id="fChW">${fld('Chord','fCh',chordOpts,chord)}</span>
+ ${fld('Root','fR',rootOpts,root)}<span id="fScW">${fld('Scale','fSc',scaleSelect(scale),scale)}</span><span id="fChW">${fld('Chord','fCh',chordOpts,chord)}</span>
  ${fld('Labels','fL',[['name','Note names'],['int','Intervals']],'name')}${positions?fld('Position','fP',[],'all'):''}${fld('Frets','fF',fretOpts,fretsDef)}
  ${positions?'<button class="btn primary" id="fPlay">Play scale</button>':''}</div>
  <div class="controls" style="margin:16px 0 10px;justify-content:space-between"><div class="big" id="fName" style="font-size:30px"></div><div class="chips" id="fNotes"></div></div>
- <div class="scroll" id="fB"></div><p class="hint" id="fHint">Click any note to hear it.</p></div>`);
+ <p class="muted" id="fDesc" style="margin:-4px 0 12px"></p><div class="scroll" id="fB"></div><p class="hint" id="fHint">Click any note to hear it.</p></div>`);
  const showSel=()=>positions?'scale':$('#fS',el).value;
  function upd(){const tun=FT[inst][+$('#fT',el).value][1],frets=+$('#fF',el).value,mode=showSel(),root=$('#fR',el).value;
   $('#fScW',el).hidden=mode!=='scale';$('#fChW',el).hidden=mode!=='chord';$('#fR',el).closest('.fld').hidden=mode==='notes'||mode==='naturals';$('#fL',el).closest('.fld').hidden=mode==='notes'||mode==='naturals';
   let map=null,title,degs=null;
   if(mode==='scale'||mode==='chord'){const obj=mode==='scale'?SC[$('#fSc',el).value]:CH[$('#fCh',el).value];degs=obj.degs;const names=spell(root,degs);map={};degs.forEach((d,i)=>map[mod(pcOf(root)+deg(d).semi)]={name:names[i],d,root:i===0});
-   title=mode==='scale'?P(root)+' '+obj.name.toLowerCase():chordName(root,obj);$('#fNotes',el).innerHTML=names.map((n,i)=>`<span class="chip ${i===0?'root':''}">${P(n)}<small>${PD(degs[i])}</small></span>`).join('');}
+   title=mode==='scale'?P(root)+' '+obj.name:chordName(root,obj);$('#fNotes',el).innerHTML=names.map((n,i)=>`<span class="chip ${i===0?'root':''}">${P(n)}<small>${PD(degs[i])}</small></span>`).join('');}
   else{title=mode==='notes'?'Every note':'Natural notes';$('#fNotes',el).innerHTML='';}
+  const so=mode==='scale'?SC[$('#fSc',el).value]:null;$('#fDesc',el).innerHTML=so?`<span class="mono">${so.degs.map(PD).join(' ')}</span> · <span class="mono">${stepsOf(so.degs).join(' ')}</span>${so.alt?' · also called '+so.alt:''}${so.desc?'<br>'+so.desc:''}`:'';$('#fDesc',el).hidden=!so;
   $('#fName',el).textContent=title+' · '+FT[inst][+$('#fT',el).value][0].split(' (')[0];
   let win=null;if(positions){const sel=$('#fP',el);const low=tun[0];const starts=[];for(let f=0;f<=12;f++)if(map[mod(low+f)])starts.push(f);const prev=sel.value;sel.innerHTML=opts([['all','Whole neck']].concat(starts.map((f,i)=>[f,`Position ${i+1} · frets ${f}–${f+4}`])),prev);if(![...sel.options].some(o=>o.value===prev))sel.value='all';win=sel.value==='all'?null:+sel.value;}
   const lab=$('#fL',el).value;
@@ -780,15 +814,57 @@ view('guitar-chords','Strings','Guitar Chords','Playable shapes for any chord, f
 
 /* ---------- Scale notes ---------- */
 view('scale-notes','Formulas','Scale Notes','Any scale spelled out in all 12 keys, with correct letter names for every degree. Tap a row to hear it.',el=>{
- el.insertAdjacentHTML('beforeend',`<div class="panel"><div class="controls">${fld('Scale','snT',scaleOpts,'major')}</div><div class="scroll" style="margin-top:14px"><table class="tbl" id="snTb"></table></div></div>`);
+ el.insertAdjacentHTML('beforeend',`<div class="panel"><div class="controls">${fld('Scale','snT',scaleSelect('major'),'major')}</div><div class="scroll" style="margin-top:14px"><table class="tbl" id="snTb"></table></div></div>`);
  function upd(){const s=SC[$('#snT',el).value];let h=`<tr><th>Key</th>${s.degs.map(d=>`<th>${PD(d)}</th>`).join('')}<th>Accidentals</th></tr>`;const rows=[];
   for(let pc=0;pc<12;pc++){const r=bestRoot(pc,s.degs),n=spell(r,s.degs);rows.push(r);h+=`<tr class="click" data-r="${r}"><td class="m rootc">${P(r)}</td>${n.map(x=>`<td class="m">${P(x)}</td>`).join('')}<td class="m muted">${accCount(n)}</td></tr>`;}
   $('#snTb',el).innerHTML=h;}
  $('#snT',el).onchange=upd;upd();
  $('#snTb',el).onclick=e=>{const tr=e.target.closest('tr[data-r]');if(!tr)return;$$('tr',el).forEach(x=>x.classList.remove('hl'));tr.classList.add('hl');clearTimers();const s=SC[$('#snT',el).value];playSeq(voiced(tr.dataset.r,s.degs.concat(['8']),48),{gap:.24,dur:.4});};
 });
+view('scale-finder','Formulas','Scale Finder','Pick the notes you are playing and choose which one is home. The finder lists every scale that contains them, exact matches first.',el=>{
+ const DN=['1','b2','2','b3','3','4','b5','5','b6','6','b7','7'];
+ let sel=new Set([4,5,8,11]),root=4;
+ el.insertAdjacentHTML('beforeend',`<div class="panel"><h3>1 · Choose your notes</h3><div class="chips" id="sfN"></div><div class="kbwrap" id="sfKb" style="margin-top:14px;max-width:380px"></div>
+ <h3 style="margin-top:22px">2 · Choose the root</h3><div class="chips" id="sfR"></div>
+ <div class="controls" style="margin-top:18px;justify-content:space-between;align-items:center"><div><span class="muted">Intervals from root</span> <span class="mono" id="sfI" style="font-weight:600"></span></div><div class="btns"><button class="btn" id="sfPlay">Play notes</button><button class="btn" id="sfClr">Clear</button></div></div><p class="hint" id="sfCh"></p></div>
+ <div class="panel"><div class="controls" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="margin:0" id="sfH"></h3>${fld('Show','sfM',[['all','Exact and containing'],['exact','Exact matches only'],['close','Up to 2 extra notes']],'all')}</div><div class="scroll" id="sfRes"></div></div>`);
+ let res=[];
+ function find(){const arr=[...sel];if(!arr.length)return [];const out=[];
+  for(const r of (root==null?[...Array(12).keys()]:[root]))for(const s of SCALES){const pcs=new Set(s.degs.map(d=>mod(r+deg(d).semi)));if(arr.every(p=>pcs.has(p)))out.push({r,s,extra:pcs.size-arr.length});}
+  return out.sort((a,b)=>a.extra-b.extra||SCALE_CATS.indexOf(a.s.cat)-SCALE_CATS.indexOf(b.s.cat)||SCALES.indexOf(a.s)-SCALES.indexOf(b.s));}
+ function upd(){
+  $('#sfN',el).innerHTML=PREF.map((n,i)=>`<button class="chip ${sel.has(i)?(i===root?'root':'on'):''}" data-p="${i}" aria-pressed="${sel.has(i)}">${P(n)}</button>`).join('');
+  const marks={};sel.forEach(p=>marks[60+p]={cls:p===root?'root':'sel',label:P(PREF[p])});$('#sfKb',el).innerHTML=kbSVG(60,71,marks,{h:110,minw:30});
+  $('#sfR',el).innerHTML=`<button class="chip ${root==null?'on':''}" data-r="any">Any root</button>`+[...sel].sort((a,b)=>a-b).map(p=>`<button class="chip ${p===root?'root':''}" data-r="${p}">${P(PREF[p])}</button>`).join('');
+  const rel=root==null?[]:[...sel].map(p=>mod(p-root)).sort((a,b)=>a-b);
+  $('#sfI',el).textContent=root==null?'pick a root to see them':rel.length?rel.map(x=>PD(DN[x])).join(' '):'–';
+  const mids=root==null?[...sel].sort((a,b)=>a-b).map(p=>60+p):rel.map(x=>60+root+x);const ch=mids.length>=3?identify(mids):[];
+  $('#sfCh',el).textContent=ch.length?'These notes also form a chord: '+ch.slice(0,3).map(c=>c.name).join(', ')+'.':'';
+  const mode=$('#sfM',el).value;res=find().filter(x=>mode==='exact'?x.extra===0:mode==='close'?x.extra<=2:true);
+  const exact=res.filter(x=>x.extra===0).length;
+  $('#sfH',el).textContent=!sel.size?'Matching scales':`${res.length} matching scale${res.length===1?'':'s'}${exact?` · ${exact} exact`:''}`;
+  if(!sel.size){$('#sfRes',el).innerHTML='<p class="muted">Tap at least one note above.</p>';return;}
+  if(!res.length){$('#sfRes',el).innerHTML='<p class="muted">No scale in the library contains all of these notes. Try removing a passing or chromatic note.</p>';return;}
+  const shown=res.slice(0,60);
+  $('#sfRes',el).innerHTML=`<table class="tbl"><tr><th>Scale</th><th>Family</th><th>Notes</th><th>Match</th><th></th></tr>${shown.map((x,i)=>{const rn=bestRoot(x.r,x.s.degs),names=spell(rn,x.s.degs);
+   return `<tr><td><b>${P(rn)} ${x.s.name}</b>${x.s.alt?`<br><span class="muted" style="font-size:12px">${x.s.alt}</span>`:''}</td><td><span class="tag">${x.s.cat}</span></td>
+   <td><div class="chips" style="flex-wrap:nowrap">${names.map((n,j)=>{const p=mod(x.r+deg(x.s.degs[j]).semi);return `<span class="chip ${j===0?'root':sel.has(p)?'on':''}" style="min-width:38px;padding:4px 7px;cursor:default">${P(n)}<small>${PD(x.s.degs[j])}</small></span>`;}).join('')}</div></td>
+   <td>${x.extra===0?'<span class="tag good">Exact</span>':`<span class="tag">+${x.extra} note${x.extra>1?'s':''}</span>`}</td>
+   <td><div class="btns" style="flex-wrap:nowrap"><button class="btn sm" data-play="${i}">Play</button><button class="btn sm" data-gtr="${i}">On guitar</button></div></td></tr>`;}).join('')}</table>${res.length>60?`<p class="hint">Showing the 60 closest of ${res.length}. Pick a root or add notes to narrow it down.</p>`:''}`;}
+ function toggle(p){if(sel.has(p)){sel.delete(p);if(root===p)root=sel.size?[...sel][0]:null;}else{sel.add(p);if(sel.size===1)root=p;playNotes([60+p],{dur:.6});}upd();}
+ $('#sfN',el).onclick=e=>{const b=e.target.closest('[data-p]');if(b)toggle(+b.dataset.p);};
+ $('#sfKb',el).addEventListener('pointerdown',e=>{const g=e.target.closest('[data-midi]');if(g)toggle(mod(+g.dataset.midi));});
+ $('#sfR',el).onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;root=b.dataset.r==='any'?null:+b.dataset.r;upd();};
+ $('#sfM',el).onchange=upd;
+ $('#sfClr',el).onclick=()=>{sel.clear();root=null;upd();};
+ $('#sfPlay',el).onclick=()=>{clearTimers();const r=root==null?Math.min(...sel):root;playSeq([...sel].map(p=>60+r+mod(p-r)).sort((a,b)=>a-b),{gap:.3,dur:.5,svg:$('#sfKb svg',el)});};
+ $('#sfRes',el).onclick=e=>{const pl=e.target.closest('[data-play]'),gt=e.target.closest('[data-gtr]');
+  if(pl){const x=res[+pl.dataset.play];clearTimers();playSeq(x.s.degs.concat(['8']).map(d=>60+x.r+deg(d).semi-(x.r>=6?12:0)),{gap:.24,dur:.4});}
+  if(gt){const x=res[+gt.dataset.gtr];PRESET={root:bestRoot(x.r,x.s.degs),scale:x.s.id};location.hash='guitar-scales';}};
+ upd();
+});
 view('scale-formulas','Formulas','Scale Formulas','How each scale is built: its degree formula, step pattern, and semitone distances from the root.',el=>{
- el.insertAdjacentHTML('beforeend',`<div class="panel"><div class="scroll"><table class="tbl" id="sfTb"><tr><th>Scale</th><th>Formula</th><th>Steps</th><th>Semitones</th><th>In C</th><th></th></tr>${SCALES.map(s=>`<tr class="click" data-id="${s.id}"><td><b>${s.name}</b>${s.alt?` <span class="muted">· ${s.alt}</span>`:''}</td><td class="m">${s.degs.map(PD).join(' ')}</td><td class="m">${stepsOf(s.degs).join(' ')}</td><td class="m muted">${s.degs.map(d=>deg(d).semi).join(' ')}</td><td class="m">${spell('C',s.degs).map(P).join(' ')}</td><td><button class="btn sm">Play</button></td></tr>`).join('')}</table></div><p class="hint">W = whole step, H = half step, W+H = augmented second (3 semitones).</p></div>`);
+ el.insertAdjacentHTML('beforeend',`<div class="panel"><div class="scroll"><table class="tbl" id="sfTb"><tr><th>Scale</th><th>Family</th><th>Formula</th><th>Steps</th><th>Semitones</th><th>In C</th><th></th></tr>${SCALES.map(s=>`<tr class="click" data-id="${s.id}"><td><b>${s.name}</b>${s.alt?` <span class="muted">· ${s.alt}</span>`:''}</td><td><span class="tag">${s.cat}</span></td><td class="m">${s.degs.map(PD).join(' ')}</td><td class="m">${stepsOf(s.degs).join(' ')}</td><td class="m muted">${s.degs.map(d=>deg(d).semi).join(' ')}</td><td class="m">${spell('C',s.degs).map(P).join(' ')}</td><td><button class="btn sm">Play</button></td></tr>`).join('')}</table></div><p class="hint">W = whole step, H = half step, W+H = augmented second (3 semitones).</p></div>`);
  $('#sfTb',el).onclick=e=>{const tr=e.target.closest('tr[data-id]');if(!tr)return;clearTimers();playSeq(voiced('C',SC[tr.dataset.id].degs.concat(['8']),60),{gap:.24,dur:.4});};
 });
 view('chord-formulas','Formulas','Chord Formulas','Every chord type as a formula of scale degrees, with semitones and a worked example in C.',el=>{
