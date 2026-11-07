@@ -1,0 +1,10 @@
+services:
+  tonebench:
+    build: .
+    image: tonebench:latest
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
