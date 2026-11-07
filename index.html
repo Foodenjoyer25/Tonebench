@@ -123,6 +123,12 @@ svg.fb{display:block;width:100%;height:auto;user-select:none}
 .fn.root circle{fill:var(--root);stroke:var(--root)} .fn.root text{fill:var(--on-accent)}
 .fn.hi circle{fill:var(--accent);stroke:var(--accent)} .fn.hi text{fill:var(--on-accent)}
 .fn.dim{opacity:.22}
+.fn.blank circle{fill:var(--surface);stroke:var(--line);opacity:0}
+.fn.blank:hover circle{opacity:1;stroke:var(--accent)}
+.fn.ext circle{fill:var(--surface);stroke:var(--accent);stroke-width:2;stroke-dasharray:3 2}
+.fn.ext text{fill:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);align-items:center}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-2px}
 .fn{cursor:pointer}
 .fn.press circle{fill:var(--press);stroke:var(--press)}
 /* chord diagrams */
@@ -821,20 +827,23 @@ view('scale-notes','Formulas','Scale Notes','Any scale spelled out in all 12 key
  $('#snT',el).onchange=upd;upd();
  $('#snTb',el).onclick=e=>{const tr=e.target.closest('tr[data-r]');if(!tr)return;$$('tr',el).forEach(x=>x.classList.remove('hl'));tr.classList.add('hl');clearTimers();const s=SC[$('#snT',el).value];playSeq(voiced(tr.dataset.r,s.degs.concat(['8']),48),{gap:.24,dur:.4});};
 });
-view('scale-finder','Formulas','Scale Finder','Pick the notes you are playing and choose which one is home. The finder lists every scale that contains them, exact matches first.',el=>{
+view('scale-finder','Formulas','Scale Finder','Tap the notes you are playing on the fretboard and choose which one is home. The finder lists every scale that contains them, exact matches first, and can map any of them back onto the neck.',el=>{
  const DN=['1','b2','2','b3','3','4','b5','5','b6','6','b7','7'];
  let sel=new Set([4,5,8,11]),root=4;
- el.insertAdjacentHTML('beforeend',`<div class="panel"><h3>1 · Choose your notes</h3><div class="chips" id="sfN"></div><div class="kbwrap" id="sfKb" style="margin-top:14px;max-width:380px"></div>
+ el.insertAdjacentHTML('beforeend',`<div class="panel"><h3>1 · Tap the notes you're playing</h3><div class="controls" style="margin-bottom:12px">${fld('Tuning','sfT',FT.guitar.map((t,i)=>[i,t[0]]),0)}${fld('Labels','sfL',[['name','Note names'],['int','Intervals from root']],'name')}${fld('Frets','sfF',[12,15,22],15)}</div>
+ <div class="scroll" id="sfFb"></div>
+ <div class="legend" style="margin-top:8px"><span><i style="background:var(--root)"></i>Root</span><span><i style="background:var(--accent)"></i>Your notes</span><span id="sfLegExt" hidden><i style="border:2px dashed var(--accent)"></i><span id="sfLegTxt"></span></span><span>Tap any fret to add or remove that note everywhere on the neck.</span></div>
+ <div class="chips" id="sfN" style="margin-top:14px"></div>
  <h3 style="margin-top:22px">2 · Choose the root</h3><div class="chips" id="sfR"></div>
  <div class="controls" style="margin-top:18px;justify-content:space-between;align-items:center"><div><span class="muted">Intervals from root</span> <span class="mono" id="sfI" style="font-weight:600"></span></div><div class="btns"><button class="btn" id="sfPlay">Play notes</button><button class="btn" id="sfClr">Clear</button></div></div><p class="hint" id="sfCh"></p></div>
- <div class="panel"><div class="controls" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="margin:0" id="sfH"></h3>${fld('Show','sfM',[['all','Exact and containing'],['exact','Exact matches only'],['close','Up to 2 extra notes']],'all')}</div><div class="scroll" id="sfRes"></div></div>`);
+ <div class="panel"><div class="controls" style="justify-content:space-between;align-items:center;margin-bottom:12px"><div><h3 style="margin:0" id="sfH"></h3><p class="hint" style="margin:4px 0 0">Click a scale to show its other notes on the fretboard.</p></div>${fld('Show','sfM',[['all','Exact and containing'],['exact','Exact matches only'],['close','Up to 2 extra notes']],'all')}</div><div class="scroll" id="sfRes"></div></div>`);
  let res=[];
  function find(){const arr=[...sel];if(!arr.length)return [];const out=[];
   for(const r of (root==null?[...Array(12).keys()]:[root]))for(const s of SCALES){const pcs=new Set(s.degs.map(d=>mod(r+deg(d).semi)));if(arr.every(p=>pcs.has(p)))out.push({r,s,extra:pcs.size-arr.length});}
   return out.sort((a,b)=>a.extra-b.extra||SCALE_CATS.indexOf(a.s.cat)-SCALE_CATS.indexOf(b.s.cat)||SCALES.indexOf(a.s)-SCALES.indexOf(b.s));}
  function upd(){
   $('#sfN',el).innerHTML=PREF.map((n,i)=>`<button class="chip ${sel.has(i)?(i===root?'root':'on'):''}" data-p="${i}" aria-pressed="${sel.has(i)}">${P(n)}</button>`).join('');
-  const marks={};sel.forEach(p=>marks[60+p]={cls:p===root?'root':'sel',label:P(PREF[p])});$('#sfKb',el).innerHTML=kbSVG(60,71,marks,{h:110,minw:30});
+  drawFb();
   $('#sfR',el).innerHTML=`<button class="chip ${root==null?'on':''}" data-r="any">Any root</button>`+[...sel].sort((a,b)=>a-b).map(p=>`<button class="chip ${p===root?'root':''}" data-r="${p}">${P(PREF[p])}</button>`).join('');
   const rel=root==null?[]:[...sel].map(p=>mod(p-root)).sort((a,b)=>a-b);
   $('#sfI',el).textContent=root==null?'pick a root to see them':rel.length?rel.map(x=>PD(DN[x])).join(' '):'–';
@@ -847,20 +856,31 @@ view('scale-finder','Formulas','Scale Finder','Pick the notes you are playing an
   if(!res.length){$('#sfRes',el).innerHTML='<p class="muted">No scale in the library contains all of these notes. Try removing a passing or chromatic note.</p>';return;}
   const shown=res.slice(0,60);
   $('#sfRes',el).innerHTML=`<table class="tbl"><tr><th>Scale</th><th>Family</th><th>Notes</th><th>Match</th><th></th></tr>${shown.map((x,i)=>{const rn=bestRoot(x.r,x.s.degs),names=spell(rn,x.s.degs);
-   return `<tr><td><b>${P(rn)} ${x.s.name}</b>${x.s.alt?`<br><span class="muted" style="font-size:12px">${x.s.alt}</span>`:''}</td><td><span class="tag">${x.s.cat}</span></td>
+   return `<tr class="click ${preview&&preview.r===x.r&&preview.s===x.s?'hl':''}" data-show="${i}"><td><b>${P(rn)} ${x.s.name}</b>${x.s.alt?`<br><span class="muted" style="font-size:12px">${x.s.alt}</span>`:''}</td><td><span class="tag">${x.s.cat}</span></td>
    <td><div class="chips" style="flex-wrap:nowrap">${names.map((n,j)=>{const p=mod(x.r+deg(x.s.degs[j]).semi);return `<span class="chip ${j===0?'root':sel.has(p)?'on':''}" style="min-width:38px;padding:4px 7px;cursor:default">${P(n)}<small>${PD(x.s.degs[j])}</small></span>`;}).join('')}</div></td>
    <td>${x.extra===0?'<span class="tag good">Exact</span>':`<span class="tag">+${x.extra} note${x.extra>1?'s':''}</span>`}</td>
-   <td><div class="btns" style="flex-wrap:nowrap"><button class="btn sm" data-play="${i}">Play</button><button class="btn sm" data-gtr="${i}">On guitar</button></div></td></tr>`;}).join('')}</table>${res.length>60?`<p class="hint">Showing the 60 closest of ${res.length}. Pick a root or add notes to narrow it down.</p>`:''}`;}
- function toggle(p){if(sel.has(p)){sel.delete(p);if(root===p)root=sel.size?[...sel][0]:null;}else{sel.add(p);if(sel.size===1)root=p;playNotes([60+p],{dur:.6});}upd();}
+   <td><div class="btns" style="flex-wrap:nowrap"><button class="btn sm" data-play="${i}">Play</button><button class="btn sm" data-gtr="${i}">Open in Guitar Scales</button></div></td></tr>`;}).join('')}</table>${res.length>60?`<p class="hint">Showing the 60 closest of ${res.length}. Pick a root or add notes to narrow it down.</p>`:''}`;}
+ let preview=null;
+ function drawFb(){const tun=FT.guitar[+$('#sfT',el).value][1],frets=+$('#sfF',el).value,lab=$('#sfL',el).value;
+  const pv=preview?new Map(preview.s.degs.map(d=>[mod(preview.r+deg(d).semi),d])):null;const pvNames=preview?spell(bestRoot(preview.r,preview.s.degs),preview.s.degs):null;
+  const pvName=p=>pvNames[preview.s.degs.indexOf(pv.get(p))];
+  $('#sfFb',el).innerHTML=fretSVG(tun,frets,m=>{const p=mod(m);
+   if(sel.has(p)){const label=lab==='int'&&root!=null?(p===root?'R':PD(DN[mod(p-root)])):(pv&&pv.has(p)?P(pvName(p)):P(PREF[p]));return {label,cls:p===root?'root':'tone'};}
+   if(pv&&pv.has(p))return {label:lab==='int'?PD(pv.get(p)):P(pvName(p)),cls:'ext'};
+   return {label:'',cls:'blank'};});
+  $('#sfLegExt',el).hidden=!preview;if(preview)$('#sfLegTxt',el).textContent=`Other notes of ${P(bestRoot(preview.r,preview.s.degs))} ${preview.s.name}`;}
+ function toggle(p,midi){preview=null;if(sel.has(p)){sel.delete(p);if(root===p)root=sel.size?[...sel][0]:null;}else{sel.add(p);if(sel.size===1)root=p;const v=voice(midi!=null?midi:60+p,{sound:midi!=null?'string':SOUND});later(()=>v.release(.4),1000);}upd();}
  $('#sfN',el).onclick=e=>{const b=e.target.closest('[data-p]');if(b)toggle(+b.dataset.p);};
- $('#sfKb',el).addEventListener('pointerdown',e=>{const g=e.target.closest('[data-midi]');if(g)toggle(mod(+g.dataset.midi));});
- $('#sfR',el).onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;root=b.dataset.r==='any'?null:+b.dataset.r;upd();};
+ $('#sfFb',el).addEventListener('pointerdown',e=>{const g=e.target.closest('.fn');if(g)toggle(mod(+g.dataset.midi),+g.dataset.midi);});
+ ['sfT','sfF','sfL'].forEach(i=>$('#'+i,el).onchange=drawFb);
+ $('#sfR',el).onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;root=b.dataset.r==='any'?null:+b.dataset.r;preview=null;upd();};
  $('#sfM',el).onchange=upd;
- $('#sfClr',el).onclick=()=>{sel.clear();root=null;upd();};
- $('#sfPlay',el).onclick=()=>{clearTimers();const r=root==null?Math.min(...sel):root;playSeq([...sel].map(p=>60+r+mod(p-r)).sort((a,b)=>a-b),{gap:.3,dur:.5,svg:$('#sfKb svg',el)});};
+ $('#sfClr',el).onclick=()=>{sel.clear();root=null;preview=null;upd();};
+ $('#sfPlay',el).onclick=()=>{clearTimers();const r=root==null?Math.min(...sel):root;playSeq([...sel].map(p=>60+r+mod(p-r)).sort((a,b)=>a-b),{gap:.3,dur:.5,sound:'string'});};
  $('#sfRes',el).onclick=e=>{const pl=e.target.closest('[data-play]'),gt=e.target.closest('[data-gtr]');
   if(pl){const x=res[+pl.dataset.play];clearTimers();playSeq(x.s.degs.concat(['8']).map(d=>60+x.r+deg(d).semi-(x.r>=6?12:0)),{gap:.24,dur:.4});}
-  if(gt){const x=res[+gt.dataset.gtr];PRESET={root:bestRoot(x.r,x.s.degs),scale:x.s.id};location.hash='guitar-scales';}};
+  if(gt){const x=res[+gt.dataset.gtr];PRESET={root:bestRoot(x.r,x.s.degs),scale:x.s.id};location.hash='guitar-scales';return;}
+  const row=e.target.closest('[data-show]');if(row&&!pl){const x=res[+row.dataset.show];preview=preview&&preview.r===x.r&&preview.s===x.s?null:x;$$('#sfRes tr',el).forEach(t=>t.classList.toggle('hl',t===row&&!!preview));drawFb();$('#sfFb',el).scrollIntoView({behavior:'smooth',block:'center'});}};
  upd();
 });
 view('scale-formulas','Formulas','Scale Formulas','How each scale is built: its degree formula, step pattern, and semitone distances from the root.',el=>{
